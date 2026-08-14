@@ -5,18 +5,31 @@ import httpx
 from app.schemas.paper import Paper
 
 
-async def search_pubmed(query: str) -> list[str]:
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
-            params={
-                "db": "pubmed",
-                "term": query,
-                "retmode": "json",
-            },
-        )
+async def search_pubmed(query: str, limit: int = 10) -> list[str]:
+    """Function which searches and retrives the list of relevant paper PMIDs
 
-        response.raise_for_status()
+    Args:
+        query (str): User search query
+        limit (int): Max number of paper IDs to retrieve. Defaults to 10.
+
+    Returns:
+        list[str]: List of PMIDs for the paper
+    """
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            response = await client.get(
+                "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+                params={
+                    "db": "pubmed",
+                    "term": query,
+                    "retmode": "json",
+                    "retmax": limit,
+                },
+            )
+
+            response.raise_for_status()
+        except httpx.HTTPError as e:
+            raise RuntimeError("PubMed search failed") from e
 
         data = response.json()
 
@@ -24,12 +37,25 @@ async def search_pubmed(query: str) -> list[str]:
 
 
 async def fetch_pubmed_details(pmids: list[str]) -> list[Paper]:
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
-            params={"db": "pubmed", "id": ",".join(pmids)},
-        )
-        response.raise_for_status()
+    """Function to fetch the list of papers using the PMIDs and
+    parsing the search results to Paper model
+
+    Args:
+        pmids (list[str]): List of PMIDs
+
+    Returns:
+        list[Paper]: List of papers parsed from the search result
+    """
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            response = await client.get(
+                "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+                params={"db": "pubmed", "id": ",".join(pmids)},
+            )
+            response.raise_for_status()
+        except httpx.HTTPError as e:
+            raise RuntimeError("PubMed fetch failed") from e
+
         root = ET.fromstring(response.text)
 
         articles = root.findall(".//PubmedArticle")
@@ -99,11 +125,11 @@ async def fetch_pubmed_details(pmids: list[str]) -> list[Paper]:
 
 
 async def main():
-    pmids = await search_pubmed("Deep learning for knee abnormality")
+    pmids = await search_pubmed("Deep learning for knee abnormality", limit=3)
 
     print("Found PMIDs:", pmids)
 
-    papers = await fetch_pubmed_details(pmids[:3])
+    papers = await fetch_pubmed_details(pmids)
     for paper in papers:
         print(paper)
         print()
