@@ -9,7 +9,7 @@ async def search_europe_pmc(
     limit: int = 10,
 ) -> list[Paper]:
     """Function to fetch the list of papers using the user query
-    from Europe PMC andmapping the search results to Paper model
+    from Europe PMC and mapping the search results to Paper model
 
     Args:
         query (str): User search query

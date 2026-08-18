@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class Paper(BaseModel):
-    pmid: str
+    pmid: str | None = None
     title: str | None = None
     abstract: str | None = None
     authors: list[str] = Field(default_factory=list)
