@@ -34,3 +34,15 @@ class EvidenceAssessment(BaseModel):
 class SearchRefinement(BaseModel):
     search_queries: list[str]
     reasoning: str
+
+
+class ResearchState(BaseModel):
+    query: str
+    plan: ResearchPlan | None = None
+    papers: list[Paper] = Field(default_factory=list)
+    source_status: dict[str, str] = Field(default_factory=dict)
+    evidence_assessment: EvidenceAssessment | None = None
+    refinement_queries: list[str] = Field(default_factory=list)
+    iteration: int = 0
+    final_papers: list[Paper] = Field(default_factory=list)
+    summary: str | None = None
