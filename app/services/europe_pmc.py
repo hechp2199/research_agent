@@ -38,17 +38,24 @@ async def search_europe_pmc(
 
         papers = []
 
-        for result in data["resultList"]["result"]:
+        for result in data.get("resultList", {}).get("result", []):
+
+            journal_info = result.get("journalInfo") or {}
+            journal_data = journal_info.get("journal") or {}
+
+            author_list = result.get("authorList") or {}
+            authors = author_list.get("author") or []
+
             paper = Paper(
                 pmid=result.get("pmid"),
                 title=result.get("title"),
                 abstract=result.get("abstractText"),
                 authors=[
                     author.get("fullName")
-                    for author in result.get("authorList", {}).get("author", [])
+                    for author in authors
                     if author.get("fullName")
                 ],
-                journal=result.get("journalInfo").get("journal").get("title"),
+                journal=journal_data.get("title"),
                 publication_date=result.get("firstPublicationDate"),
                 doi=result.get("doi"),
                 pmcid=result.get("id"),

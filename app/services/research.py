@@ -1,81 +1,17 @@
-import asyncio
 import uuid
 
-from app.schemas.paper import Paper
 from app.schemas.research import ResearchResult, ResearchState
-from app.services.pubmed import search_pubmed, fetch_pubmed_details
-from app.services.europe_pmc import search_europe_pmc
 from app.services.evidence import assess_evidence
 from app.services.planner import generate_research_plan
 from app.services.refinement import generate_refinement_queries
+from app.services.search import search_sources
 from app.services.summarizer import generate_research_summary
 from app.utils.deduplication import deduplicate_papers
 from app.utils.logger import get_logger
 from app.utils.relevance import rank_papers
-from app.utils.search_query import combine_search_queries
 
 MAX_SEARCH_ITERATIONS = 2
 logger = get_logger(__name__)
-
-
-async def search_pubmed_papers(query: str, limit: int) -> list[Paper]:
-    pmids = await search_pubmed(query, limit)
-
-    if not pmids:
-        return []
-
-    return await fetch_pubmed_details(pmids)
-
-
-async def search_sources(
-    queries: list[str],
-    sources: list[str],
-    limit: int,
-) -> tuple[list[Paper], dict[str, str]]:
-
-    combined_query = combine_search_queries(queries)
-
-    tasks = []
-
-    if "pubmed" in sources:
-        tasks.append(asyncio.create_task(search_pubmed_papers(combined_query, limit)))
-
-    if "europe_pmc" in sources:
-        tasks.append(asyncio.create_task(search_europe_pmc(combined_query, limit)))
-
-    if not tasks:
-        raise RuntimeError("No valid literature sources selected")
-
-    results = await asyncio.gather(
-        *tasks,
-        return_exceptions=True,
-    )
-
-    papers = []
-    source_status = {}
-
-    result_index = 0
-
-    if "pubmed" in sources:
-        result = results[result_index]
-        result_index += 1
-
-        if isinstance(result, Exception):
-            source_status["PubMed"] = "failed"
-        else:
-            source_status["PubMed"] = "success"
-            papers.extend(result)
-
-    if "europe_pmc" in sources:
-        result = results[result_index]
-
-        if isinstance(result, Exception):
-            source_status["Europe PMC"] = "failed"
-        else:
-            source_status["Europe PMC"] = "success"
-            papers.extend(result)
-
-    return papers, source_status
 
 
 async def search_literature(

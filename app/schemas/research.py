@@ -37,6 +37,7 @@ class SearchRefinement(BaseModel):
 
 
 class ResearchState(BaseModel):
+    research_id: str | None = None
     query: str
     plan: ResearchPlan | None = None
     papers: list[Paper] = Field(default_factory=list)
@@ -46,3 +47,6 @@ class ResearchState(BaseModel):
     iteration: int = 0
     final_papers: list[Paper] = Field(default_factory=list)
     summary: str | None = None
+    # For learning purpose
+    limit: int = 10
+    top_k: int = 5
