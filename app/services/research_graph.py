@@ -6,7 +6,7 @@ from app.schemas.research import ResearchResult, ResearchState
 from app.services.planner import generate_research_plan
 from app.services.search import search_sources
 from app.utils.deduplication import deduplicate_papers
-from app.utils.relevance import rank_papers
+from app.utils.ranking.hybrid_relevance import rank_papers
 from app.services.evidence import assess_evidence
 from app.services.refinement import generate_refinement_queries
 from app.services.summarizer import generate_research_summary

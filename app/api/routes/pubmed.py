@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 
-from app.services.pubmed import search_pubmed, fetch_pubmed_details
+from app.services.literature.pubmed import search_pubmed, fetch_pubmed_details
 from app.schemas.paper import Paper
 
 router = APIRouter(

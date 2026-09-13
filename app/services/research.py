@@ -8,7 +8,7 @@ from app.services.search import search_sources
 from app.services.summarizer import generate_research_summary
 from app.utils.deduplication import deduplicate_papers
 from app.utils.logger import get_logger
-from app.utils.relevance import rank_papers
+from app.utils.ranking.relevance import rank_papers
 
 MAX_SEARCH_ITERATIONS = 2
 logger = get_logger(__name__)

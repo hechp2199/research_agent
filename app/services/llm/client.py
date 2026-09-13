@@ -7,7 +7,8 @@ from openai import OpenAI
 load_dotenv()
 
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini").lower()
-
+GEMINI_MODEL = os.getenv("GEMINI_MODEL","gemini-3.6-flash").lower() 
+OPENAI_MODEL = os.getenv("OPENAI_MODEL","gpt-5.6-luna").lower()
 
 if LLM_PROVIDER == "gemini":
     api_key = os.getenv("GEMINI_API_KEY")
@@ -16,7 +17,7 @@ if LLM_PROVIDER == "gemini":
         raise RuntimeError("GEMINI_API_KEY is not configured")
 
     client = genai.Client(api_key=api_key)
-    MODEL = "gemini-3.6-flash"
+    MODEL = GEMINI_MODEL
 
 
 elif LLM_PROVIDER == "openai":
@@ -26,7 +27,7 @@ elif LLM_PROVIDER == "openai":
         raise RuntimeError("OPENAI_API_KEY is not configured")
 
     client = OpenAI(api_key=api_key)
-    MODEL = "gpt-5.6-luna"
+    MODEL = OPENAI_MODEL
 
 
 else:

@@ -1,8 +1,8 @@
 import asyncio
 
 from app.schemas.paper import Paper
-from app.services.europe_pmc import search_europe_pmc
-from app.services.pubmed import fetch_pubmed_details, search_pubmed
+from app.services.literature.europe_pmc import search_europe_pmc
+from app.services.literature.pubmed import fetch_pubmed_details, search_pubmed
 from app.utils.search_query import combine_search_queries
 
 

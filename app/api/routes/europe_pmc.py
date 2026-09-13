@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from app.schemas.paper import Paper
-from app.services.europe_pmc import search_europe_pmc
+from app.services.literature.europe_pmc import search_europe_pmc
 
 router = APIRouter(
     prefix="/europe-pmc",
